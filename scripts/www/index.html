@@ -1,0 +1,3196 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN" data-theme="light">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>魏玛记账 · Papiermark Ledger</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+
+  --bg: #0b0d12;
+
+  --surface: #141821;
+
+  --surface-2: #1b202b;
+
+  --border: #262d3a;
+
+  --text: #e6eaf2;
+
+  --muted: #8a94a8;
+
+  --accent: #d4a24c;
+
+  --accent-glow: rgba(212, 162, 76, .12);
+
+  --green: #4caf7a;
+
+  --red: #e0556a;
+
+  --input-bg: #0d1016;
+
+  --hover-bg: rgba(255,255,255,.02);
+
+  --group-header-hover: #222836;
+
+  --summary-end: #11151d;
+
+  --body-glow: #1b2233;
+
+  --modal-overlay: rgba(0,0,0,.65);
+
+  --radius: 14px;
+
+  --shadow: 0 12px 36px rgba(0, 0, 0, .35);
+
+  --num-font: 'Hoefler Text', 'Georgia', 'EB Garamond', 'Times New Roman', serif;
+
+  --swipe-action-width: 88px;
+
+}
+
+:root[data-theme="light"] {
+
+  --bg: #f4f5f7;
+
+  --surface: #ffffff;
+
+  --surface-2: #eef0f4;
+
+  --border: #d8dce4;
+
+  --text: #1a1d24;
+
+  --muted: #6b7280;
+
+  --accent: #b8862f;
+
+  --accent-glow: rgba(184, 134, 47, .15);
+
+  --green: #2e8b57;
+
+  --red: #c0392b;
+
+  --input-bg: #ffffff;
+
+  --hover-bg: rgba(0,0,0,.03);
+
+  --group-header-hover: #e3e6ec;
+
+  --summary-end: #f7f8fa;
+
+  --body-glow: #e8ecf3;
+
+  --modal-overlay: rgba(0,0,0,.35);
+
+  --shadow: 0 12px 36px rgba(0, 0, 0, .12);
+
+}
+
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans JP", "Noto Sans", sans-serif;
+
+  background: radial-gradient(1100px 500px at 50% -8%, var(--body-glow) 0%, var(--bg) 60%);
+
+  color: var(--text);
+
+  min-height: 100vh;
+
+  padding: 20px 14px 80px;
+
+  -webkit-font-smoothing: antialiased;
+
+  transition: background .3s, color .3s;
+
+}
+
+.wrap { max-width: 860px; margin: 0 auto; }
+
+
+header {
+
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+
+  gap: 12px; margin-bottom: 20px;
+
+}
+
+header h1 { font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+
+header h1 span { color: var(--accent); }
+
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.lang-select {
+
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+
+  padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none; cursor: pointer;
+
+}
+
+.lang-select:focus { border-color: var(--accent); }
+
+.btn {
+
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+
+  padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border);
+
+  background: var(--surface); color: var(--text); font-size: 13px; font-weight: 500;
+
+  cursor: pointer; transition: .18s; white-space: nowrap;
+
+}
+
+.btn:hover { border-color: var(--accent); background: var(--surface-2); }
+
+.btn:active { transform: scale(.97); }
+
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+
+.btn-primary:hover { background: var(--accent); filter: brightness(1.1); }
+
+:root[data-theme="light"] .btn-primary { color: #fff; }
+
+.btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+
+.btn-danger { color: var(--red); border-color: var(--red); }
+
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+
+.theme-toggle {
+
+  width: 36px; height: 36px;
+
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+
+  border-radius: 10px;
+
+  font-size: 16px;
+
+  color: var(--text);
+
+  cursor: pointer;
+
+  display: inline-flex; align-items: center; justify-content: center;
+
+  transition: .18s;
+
+}
+
+.theme-toggle:hover { border-color: var(--accent); background: var(--surface-2); }
+
+.theme-toggle:active { transform: scale(.95); }
+
+
+.rate-bar {
+
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+
+  gap: 10px; padding: 12px 16px; background: var(--surface);
+
+  border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 18px;
+
+  font-size: 12.5px; color: var(--muted);
+
+  transition: background .3s, border-color .3s;
+
+}
+
+.rate-bar .rate-val {
+
+  font-family: var(--num-font);
+
+  font-variant-numeric: oldstyle-nums;
+
+  font-feature-settings: "onum" 1;
+
+  font-style: italic;
+
+  color: var(--accent); font-weight: 700;
+
+  transition: color 0.3s, transform 0.2s; display: inline-block; min-width: 60px; text-align: right;
+
+}
+
+.rate-bar .rate-val.flash { animation: valueFlash 0.6s ease; }
+
+@keyframes valueFlash {
+
+  0% { color: var(--green); transform: scale(1.1); }
+
+  100% { color: var(--accent); transform: scale(1); }
+
+}
+
+.rate-bar .status { display: flex; align-items: center; gap: 6px; }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+
+.dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+.dot.loading { background: var(--accent); animation: pulse 1s infinite; }
+
+.dot.err { background: var(--red); }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+
+.icon-btn.spinning { animation: spin .8s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.icon-btn:disabled { opacity: .5; cursor: wait; }
+
+
+/* 三卡片纵向单列三行显示 */
+
+.summary-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+
+.summary-card {
+
+  padding: 16px 10px; background: linear-gradient(180deg, var(--surface), var(--summary-end));
+
+  border: 1px solid var(--border); border-radius: var(--radius);
+
+  text-align: center; min-width: 0; overflow: hidden;
+
+  transition: background .3s, border-color .3s;
+
+}
+
+.summary-card .label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; white-space: nowrap; }
+
+.summary-card .value { font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+
+.summary-card.income .value { color: var(--green); }
+
+.summary-card.expense .value { color: var(--red); }
+
+.summary-card.total .value { color: var(--accent); }
+
+
+.group { margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; transition: background .3s, border-color .3s; }
+
+.group.month-group { margin: 8px 12px; border-radius: 10px; }
+
+.group.day-group { margin: 8px 12px; border-radius: 8px; }
+
+.group-header {
+
+  display: flex; align-items: center; justify-content: space-between;
+
+  padding: 12px 16px; cursor: pointer; user-select: none;
+
+  background: var(--surface-2); transition: background .15s;
+
+}
+
+.group-header:hover { background: var(--group-header-hover); }
+
+.gh-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.chevron { font-size: 10px; color: var(--muted); transition: transform .2s; }
+
+.group.open > .group-header .chevron { transform: rotate(90deg); }
+
+.group-title { font-size: 14px; font-weight: 600; }
+
+.gh-stats { display: flex; gap: 10px; font-size: 11.5px; flex-wrap: wrap; justify-content: flex-end; }
+
+.gh-stat.income { color: var(--green); }
+
+.gh-stat.expense { color: var(--red); }
+
+.gh-stat.total { color: var(--accent); font-weight: 700; }
+
+
+.group-body { display: none; border-top: 1px solid var(--border); }
+
+.group.open > .group-body { display: block; }
+
+
+/* 条目左滑布局：操作按钮后置 + 内容层实色覆盖 */
+
+.entry {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.entry-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+/* 悬停效果用内部伪元素实现，保持内容层全程实色，不透出底部操作按钮 */
+
+.entry-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--hover-bg);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.entry:hover .entry-content::before {
+  opacity: 1;
+}
+
+.entry-icon {
+  position: relative;
+  z-index: 1;
+  width: 40px; height: 40px; border-radius: 10px; background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center; flex: none;
+  border: 1px solid var(--border);
+  font-size: 20px; font-weight: 800; line-height: 1;
+}
+
+.entry-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 名称横向滑动容器 - 隐藏滚动条，支持鼠标/触摸拖拽 */
+
+.entry-name-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+}
+
+.entry-name-scroll:active {
+  cursor: grabbing;
+}
+
+.entry-name-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.entry-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* 价格右对齐，占满宽度，强制单行，字号自适应 */
+
+.entry-price {
+
+  text-align: right;
+
+  width: 100%;
+
+}
+
+.entry-price .p-main {
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+}
+
+.entry-price .p-sub {
+
+  color: var(--muted);
+
+  margin-top: 2px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+}
+
+/* 左滑操作按钮区 - 默认被内容层完全覆盖 */
+
+.entry-actions {
+
+  position: absolute;
+
+  top: 0;
+
+  right: 0;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  padding: 0 16px;
+
+  z-index: 1;
+
+}
+
+.icon-btn {
+
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid transparent;
+
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 14px;
+
+  display: flex; align-items: center; justify-content: center; transition: .15s;
+
+}
+
+.icon-btn:hover { background: var(--surface-2); border-color: var(--border); color: var(--text); }
+
+.icon-btn.del-btn:hover { color: var(--red); border-color: var(--red); background: var(--hover-bg); }
+
+
+.empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
+
+.empty .big { font-size: 36px; margin-bottom: 10px; opacity: .5; }
+
+
+/* 金额数字统一字体 */
+
+.money-num {
+
+  font-family: var(--num-font);
+
+  font-variant-numeric: oldstyle-nums;
+
+  font-feature-settings: "onum" 1;
+
+  font-style: italic;
+
+}
+
+.money-sym { /* 货币符号保持原字体 */ }
+
+
+.footer-area {
+
+  margin-top: 32px; padding-top: 20px; border-top: 1px dashed var(--border);
+
+}
+
+.rate-info {
+
+  text-align: center; font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 20px;
+
+}
+
+.rate-info strong {
+
+  font-family: var(--num-font);
+
+  font-variant-numeric: oldstyle-nums;
+
+  font-feature-settings: "onum" 1;
+
+  font-style: italic;
+
+  color: var(--accent);
+
+}
+
+.cloud-guide {
+
+  background: var(--surface-2); padding: 16px; border-radius: 12px;
+
+  font-size: 12.5px; color: var(--muted); line-height: 1.8; text-align: left;
+
+  border: 1px solid var(--border);
+
+}
+
+.cloud-guide b { color: var(--text); display: block; margin-bottom: 2px; }
+
+
+.modal-overlay {
+
+  position: fixed; inset: 0; background: var(--modal-overlay); backdrop-filter: blur(4px);
+
+  display: none; align-items: flex-end; justify-content: center; z-index: 1000; padding: 0;
+
+}
+
+.modal-overlay.show { display: flex; }
+
+@media(min-width: 640px) { .modal-overlay { align-items: center; padding: 20px; } }
+
+.modal {
+
+  background: var(--surface); width: 100%; max-width: 520px; max-height: 92vh;
+
+  overflow-y: auto; border-radius: 20px 20px 0 0; border: 1px solid var(--border);
+
+  box-shadow: var(--shadow); animation: slideUp .25s ease;
+
+  transition: background .3s;
+
+}
+
+@media(min-width: 640px) { .modal { border-radius: var(--radius); } }
+
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 2; }
+
+.modal-header h2 { font-size: 16px; font-weight: 700; }
+
+.modal-body { padding: 18px 20px; }
+
+.modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; position: sticky; bottom: 0; background: var(--surface); }
+
+
+.form-group { margin-bottom: 16px; }
+
+.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+
+.form-group input[type="text"], .form-group input[type="number"], .form-group select, .form-group textarea {
+
+  width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 10px;
+
+  background: var(--input-bg); color: var(--text); font-size: 15px; outline: none; transition: .15s;
+
+  font-family: inherit;
+
+}
+
+.form-group input[type="number"] {
+
+  font-family: var(--num-font);
+
+  font-variant-numeric: oldstyle-nums;
+
+  font-feature-settings: "onum" 1;
+
+  font-style: italic;
+
+}
+
+.form-group textarea { resize: vertical; min-height: 100px; font-size: 13px; font-family: monospace; }
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+.form-group input[type="number"]::-webkit-outer-spin-button, .form-group input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.form-group input[type="number"] { -moz-appearance: textfield; }
+
+
+.date-input-group {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+.date-input-group input {
+
+  text-align: center;
+
+  padding: 10px 6px;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  font-family: var(--num-font);
+
+  font-variant-numeric: oldstyle-nums;
+
+  font-feature-settings: "onum" 1;
+
+  font-style: italic;
+
+}
+
+.date-input-group input#fYear { flex: 1.5; }
+
+.date-input-group input#fMonth { flex: 1; }
+
+.date-input-group input#fDay { flex: 1; }
+
+.date-input-group span {
+
+  font-size: 14px;
+
+  color: var(--muted);
+
+  user-select: none;
+
+}
+
+
+/* 全屏历史页面 */
+
+.history-overlay {
+
+  position: fixed; inset: 0; background: var(--bg); z-index: 3000;
+
+  display: none; flex-direction: column; align-items: center;
+
+  overflow-y: auto; padding: 40px 20px;
+
+  transition: background .3s;
+
+}
+
+.history-overlay.show { display: flex; }
+
+.history-container {
+
+  max-width: 760px; width: 100%;
+
+  background: var(--surface); border: 1px solid var(--border);
+
+  border-radius: 20px; padding: 40px; box-shadow: var(--shadow);
+
+  transition: background .3s;
+
+}
+
+.history-rate {
+
+  text-align: center; font-size: 18px; font-weight: 600;
+
+  color: var(--accent); margin-bottom: 30px; padding-bottom: 15px;
+
+  border-bottom: 1px dashed var(--border);
+
+  font-family: var(--num-font);
+
+  font-variant-numeric: oldstyle-nums;
+
+  font-feature-settings: "onum" 1;
+
+  font-style: italic;
+
+}
+
+.history-title { font-size: 24px; margin-bottom: 24px; text-align: center; }
+
+.history-content { font-size: 15px; line-height: 1.9; color: var(--muted); }
+
+.history-content p { margin-bottom: 16px; }
+
+.history-content b { color: var(--text); }
+
+.history-close-btn {
+
+  position: fixed; top: 20px; right: 20px; width: 44px; height: 44px;
+
+  border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border);
+
+  color: var(--text); font-size: 20px; display: flex; align-items: center; justify-content: center;
+
+  cursor: pointer; z-index: 3010; transition: .2s;
+
+}
+
+.history-close-btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+
+.toast {
+
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+
+  padding: 10px 20px; border-radius: 30px; font-size: 13px; box-shadow: var(--shadow);
+
+  opacity: 0; transition: .3s; z-index: 4000; pointer-events: none; white-space: nowrap;
+
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+
+::-webkit-scrollbar { width: 6px; }
+
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+
+/* 手机端专项适配 */
+
+@media(max-width: 600px) {
+
+  .summary-grid { gap: 6px; }
+
+  .summary-card { padding: 10px 6px; }
+
+  .summary-card .label { font-size: 10px; letter-spacing: .02em; margin-bottom: 4px; }
+
+  .entry-content {
+
+    padding: 12px 12px;
+
+    gap: 10px;
+
+  }
+
+  .entry-actions {
+
+    padding: 0 12px;
+
+    gap: 6px;
+
+  }
+
+  .entry-icon { width: 32px; height: 32px; font-size: 17px; }
+
+  .entry-main { gap: 4px; }
+
+  .entry-name { font-size: 14px; }
+
+  .entry-actions .icon-btn { width: 28px; height: 28px; font-size: 13px; }
+
+  .gh-stats { font-size: 10.5px; gap: 6px; }
+
+  .history-container { padding: 20px; }
+
+  .history-title { font-size: 20px; }
+
+  .history-content { font-size: 14px; }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap" id="app">
+
+
+  <header>
+
+    <h1 data-i18n="headerTitle">魏玛记账</h1>
+
+    <div class="header-actions">
+
+      <button class="theme-toggle" id="themeBtn" title="切换背景">🌙</button>
+
+      <select class="lang-select" id="langSelect">
+
+        <option value="zh-CN">中文（简体）</option>
+
+        <option value="zh-TW">中文（繁體）</option>
+
+        <option value="en-GB">English (UK)</option>
+
+        <option value="ja-JP">日本語（日本）</option>
+
+        <option value="de-DE">Deutsch (Deutschland)</option>
+
+        <option value="ru-RU">Русский (Россия)</option>
+
+        <option value="fr-FR">Français (France)</option>
+
+      </select>
+
+      <button class="btn btn-sm" id="historyBtn" data-i18n="historyBtn">关于通胀</button>
+
+      <button class="btn btn-sm" id="syncBtn" data-i18n="dataManager">数据备份</button>
+
+      <button class="btn btn-sm" id="toggleModeBtn" data-i18n="btnToMark">切换纸马克</button>
+
+      <button class="btn btn-primary btn-sm" id="addBtn">＋ <span data-i18n="add">新增</span></button>
+
+    </div>
+
+  </header>
+
+
+  <div class="rate-bar">
+
+    <div class="status">
+
+      <span class="dot loading" id="rateDot"></span>
+
+      <span id="rateText" data-i18n="rateLoading">获取实时汇率中…</span>
+
+    </div>
+
+    <div>
+
+      <span data-i18n="usdToCny">1 USD =</span>
+
+      <span class="rate-val" id="usdCnyRate">--</span>
+
+      <span data-i18n="cny">CNY</span>
+
+      <span style="font-size:10px;color:var(--muted);margin-left:6px;" id="rateTime"></span>
+
+      <button class="icon-btn" id="refreshRate" title="Refresh" style="display:inline-flex;margin-left:4px;">⟳</button>
+
+    </div>
+
+  </div>
+
+
+  <div class="summary-grid">
+
+    <div class="summary-card income">
+
+      <div class="label" data-i18n="totalIncome">总收入</div>
+
+      <div class="value" id="sumIncome">0.00</div>
+
+    </div>
+
+    <div class="summary-card expense">
+
+      <div class="label" data-i18n="totalExpense">总支出</div>
+
+      <div class="value" id="sumExpense">0.00</div>
+
+    </div>
+
+    <div class="summary-card total">
+
+      <div class="label" data-i18n="netTotal">总额</div>
+
+      <div class="value" id="sumTotal">0.00</div>
+
+    </div>
+
+  </div>
+
+
+  <div id="listContainer"></div>
+
+  <div class="empty" id="emptyState" style="display:none;">
+
+    <div class="big">📒</div>
+
+    <div data-i18n="emptyHint">还没有账目，点击右上角“新增”开始记录</div>
+
+  </div>
+
+
+  <div class="footer-area">
+
+    <div class="rate-info" id="rateInfo"></div>
+
+    <div class="cloud-guide" id="cloudGuide"></div>
+
+  </div>
+
+
+</div>
+
+
+<!-- 主编辑弹窗 -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2 id="modalTitle" data-i18n="editTitle">编辑条目</h2>
+
+      <button class="icon-btn" id="modalClose">✕</button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-group">
+
+        <label data-i18n="type">类型</label>
+
+        <select id="fType">
+
+          <option value="expense" data-i18n="expense">支出</option>
+
+          <option value="income" data-i18n="income">收入</option>
+
+        </select>
+
+      </div>
+
+      <div class="form-group">
+
+        <label data-i18n="fieldName">名称 / 备注</label>
+
+        <input type="text" id="fName" data-i18n-placeholder="fieldNamePlaceholder" placeholder="例如：工资、餐饮">
+
+      </div>
+
+      <div class="form-group">
+
+        <label data-i18n="fieldPrice">金额（CNY）</label>
+
+        <input type="number" id="fPrice" step="0.01" min="0" placeholder="0.00">
+
+      </div>
+
+      
+
+      <div class="form-group">
+
+        <label data-i18n="fieldDate">日期</label>
+
+        <div class="date-input-group">
+
+          <input type="number" id="fYear" placeholder="YYYY" min="1900" max="2100">
+
+          <span data-i18n="year">年</span>
+
+          <input type="number" id="fMonth" placeholder="MM" min="1" max="12">
+
+          <span data-i18n="month">月</span>
+
+          <input type="number" id="fDay" placeholder="DD" min="1" max="31">
+
+          <span data-i18n="day">日</span>
+
+        </div>
+
+        <input type="hidden" id="fDate">
+
+      </div>
+
+      
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button type="button" class="btn btn-danger" id="deleteBtn" style="display:none;" data-i18n="delete">删除</button>
+
+      <button type="button" class="btn" id="modalCancel" style="flex:1;" data-i18n="cancel">取消</button>
+
+      <button type="button" class="btn btn-primary" id="saveBtn" style="flex:2;" data-i18n="save">保存</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- 数据备份弹窗 -->
+
+<div class="modal-overlay" id="syncModalOverlay">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2 data-i18n="dataManager">数据备份与恢复</h2>
+
+      <button class="icon-btn" id="syncModalClose">✕</button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div style="display:flex; gap:10px; margin-bottom:16px;">
+
+        <button class="btn btn-primary" id="exportFileBtn" style="flex:1;" data-i18n="exportFile">导出文件</button>
+
+        <button class="btn" id="importFileBtn" style="flex:1;" data-i18n="importFile">导入文件</button>
+
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+
+      </div>
+
+      
+
+      <div class="form-group">
+
+        <label data-i18n="textData">复制/粘贴数据文本</label>
+
+        <textarea id="dataTextArea" data-i18n-placeholder="pastePlaceholder" placeholder="在下方粘贴备份文本并点击加载，或点击上方导出..."></textarea>
+
+      </div>
+
+      
+
+      <div style="display:flex; gap:10px;">
+
+        <button class="btn" id="copyDataBtn" style="flex:1;" data-i18n="copyData">复制文本</button>
+
+        <button class="btn btn-primary" id="pasteDataBtn" style="flex:1;" data-i18n="loadFromText">从文本加载</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- 历史信息全屏页面 -->
+
+<div class="history-overlay" id="historyOverlay">
+
+  <button class="history-close-btn" id="historyClose">✕</button>
+
+  <div class="history-container">
+
+    <div class="history-rate" id="historyRateDisplay"></div>
+
+    <h1 class="history-title" id="historyTitle"></h1>
+
+    <div class="history-content" id="historyContent"></div>
+
+  </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* 常量 */
+
+const MARK_PER_USD = 4.2e12;
+
+const FALLBACK_USD_CNY = 7.25;
+
+const RATE_SOURCES = [
+
+  'https://allratestoday.com/api/open/latest/USD',
+
+  'https://open.er-api.com/v6/latest/USD',
+
+  'https://api.frankfurter.app/v2/rates?base=USD&quotes=CNY'
+
+];
+
+const STORAGE_KEY = 'weimar_ledger_entries_v5';
+
+const LANG_KEY = 'weimar_ledger_lang';
+
+const RATE_CACHE_KEY = 'weimar_ledger_rate';
+
+const THEME_KEY = 'weimar_ledger_theme';
+
+const SWIPE_THRESHOLD = 30; // 最小触发条目左滑阈值（像素）
+
+
+/* i18n 字典 */
+
+const I18N = {
+
+  'zh-CN': {
+
+    headerTitle:'魏玛记账', add:'新增', rateLoading:'获取实时汇率中…', rateOk:'实时汇率已更新', rateUnchanged:'数据源未更新，汇率未变', rateErr:'汇率获取失败，使用离线回退', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'总收入', totalExpense:'总支出', netTotal:'总额',
+
+    btnToMark:'切换纸马克', btnToCny:'切换人民币',
+
+    dataManager:'数据备份', exportFile:'导出文件', importFile:'导入文件', textData:'复制/粘贴数据文本', copyData:'复制文本', loadFromText:'从文本加载',
+
+    pastePlaceholder:'在下方粘贴备份文本并点击加载，或点击上方导出...',
+
+    historyBtn:'关于通胀',
+
+    guideTitle:'本地数据管理指南：',
+
+    guideContent:`<b>1. 导出 / 导入文件：</b><br>点击“导出文件”下载备份（如在微信内请用浏览器打开），在其他设备点击“导入文件”恢复。<br><br>
+
+                  <b>2. 文本复制：</b><br>点击“复制文本”发给自己，在另一台设备粘贴后点击“从文本加载”。<br><br>
+
+                  <b>3. 多标签页：</b><br>同一浏览器开多个页面，修改数据会自动同步！`,
+
+    historyTitle:'1923年德国恶性通货膨胀',
+
+    historyContent:`<p>1923年，德国魏玛共和国经历了历史上最严重的恶性通货膨胀之一。第一次世界大战战败后，德国被迫签订了《凡尔赛条约》，承担了巨额的战争赔款。为了支付赔款和维持国内运转，德国政府选择了最简单粗暴的方法：疯狂印钞。</p>
+
+                      <p>从1914年一战爆发前的 1美元兑换 4.2 马克，到1923年11月，汇率暴跌至 <b>1美元兑换 4.2 万亿马克</b>。货币的购买力瞬间蒸发，人们推着一整车的钞票去买一块面包。火柴、邮票等日常生活用品的价格每小时都在翻倍。</p>
+
+                      <p>恶性通胀彻底摧毁了德国中产阶级的储蓄，社会陷入极度动荡。最终在1923年底，德国政府发行了以土地和工业资产为抵押的新货币——地租马克（Rentenmark），并以 1地租马克 = 1万亿纸马克 的比例替换了旧货币，这才勉强遏制了通胀的狂飙。</p>`,
+
+    syncSuccess:'已导出到文件', syncLoadOk:'数据已成功恢复', syncErr:'数据格式错误或无效',
+
+    emptyHint:'还没有账目，点击右上角“新增”开始记录', editTitle:'编辑条目', newTitle:'新增条目',
+
+    type:'类型', expense:'支出', income:'收入',
+
+    fieldName:'名称 / 备注', fieldNamePlaceholder:'例如：工资、餐饮', fieldPrice:'金额（CNY）', fieldDate:'日期', fieldImage:'图片',
+
+    delete:'删除', cancel:'取消', save:'保存', toastSaved:'已保存', toastDeleted:'已删除',
+
+    today:'今天', yesterday:'昨天', day:'日', month:'月', year:'年',
+
+    yearIncome:'年收入', yearExpense:'年支出', yearTotal:'年总额',
+
+    monthIncome:'月收入', monthExpense:'月支出', monthTotal:'月总额',
+
+    dayIncome:'日收入', dayExpense:'日支出', dayTotal:'日总额',
+
+    bottomRate:`1 人民币 ≈ <strong>{rate}</strong> 纸马克（1923年11月汇率）`
+
+  },
+
+  'zh-TW': {
+
+    headerTitle:'魏瑪記帳', add:'新增', rateLoading:'獲取即時匯率中…', rateOk:'即時匯率已更新', rateUnchanged:'數據源未更新，匯率未變', rateErr:'匯率獲取失敗，使用離線回退', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'總收入', totalExpense:'總支出', netTotal:'總額',
+
+    btnToMark:'切換紙馬克', btnToCny:'切換人民幣',
+
+    dataManager:'數據備份', exportFile:'導出文件', importFile:'導入文件', textData:'複製/粘貼數據文本', copyData:'複製文本', loadFromText:'從文本加載',
+
+    pastePlaceholder:'在下方粘貼備份文本並點擊加載，或點擊上方導出...',
+
+    historyBtn:'關於通脹',
+
+    guideTitle:'本地數據管理指南：',
+
+    guideContent:`<b>1. 導出 / 導入文件：</b><br>點擊「導出文件」下載備份（如在微信內請用瀏覽器打開），在其他設備點擊「導入文件」恢復。<br><br>
+
+                  <b>2. 文本複製：</b><br>點擊「複製文本」發給自己，在另一台設備粘貼後點擊「從文本加載」。<br><br>
+
+                  <b>3. 多標籤頁：</b><br>同一瀏覽器開多個頁面，修改數據會自動同步！`,
+
+    historyTitle:'1923年德國惡性通貨膨脹',
+
+    historyContent:`<p>1923年，德國魏瑪共和國經歷了歷史上最嚴重的惡性通貨膨脹之一。第一次世界大戰戰敗後，德國被迫簽訂了《凡爾賽條約》，承擔了巨額的戰爭賠償。為了支付賠償和維持國內運轉，德國政府選擇了最簡單粗暴的方法：瘋狂印鈔。</p>
+
+                      <p>從1914年一戰爆發前的 1美元兌換 4.2 馬克，到1923年11月，匯率暴跌至 <b>1美元兌換 4.2 萬億馬克</b>。貨幣的購買力瞬間蒸發，人們推著一整車的鈔票去買一塊麵包。火柴、郵票等日常生活用品的價格每小時都在翻倍。</p>
+
+                      <p>惡性通脹徹底摧毀了德國中產階級的儲蓄，社會陷入極度動盪。最終在1923年底，德國政府發行了以土地和工業資產為抵押的新貨幣——地租馬克（Rentenmark），並以 1地租馬克 = 1萬億紙馬克 的比例替換了舊貨幣，這才勉強遏制了通脹的狂飆。</p>`,
+
+    syncSuccess:'已導出到文件', syncLoadOk:'數據已成功恢復', syncErr:'數據格式錯誤或無效',
+
+    emptyHint:'還沒有帳目，點擊右上角「新增」開始記錄', editTitle:'編輯條目', newTitle:'新條目',
+
+    type:'類型', expense:'支出', income:'收入',
+
+    fieldName:'名稱 / 備註', fieldNamePlaceholder:'例如：薪資、餐費', fieldPrice:'金額（CNY）', fieldDate:'日期', fieldImage:'圖片',
+
+    delete:'刪除', cancel:'取消', save:'儲存', toastSaved:'已儲存', toastDeleted:'已刪除',
+
+    today:'今天', yesterday:'昨天', day:'日', month:'月', year:'年',
+
+    yearIncome:'年收入', yearExpense:'年支出', yearTotal:'年總額',
+
+    monthIncome:'月收入', monthExpense:'月支出', monthTotal:'月總額',
+
+    dayIncome:'日收入', dayExpense:'日支出', dayTotal:'日總額',
+
+    bottomRate:`1 人民幣 ≈ <strong>{rate}</strong> 紙馬克（1923年11月匯率）`
+
+  },
+
+  'en-GB': {
+
+    headerTitle:'Weimar Ledger', add:'Add', rateLoading:'Fetching live rate…', rateOk:'Live rate updated', rateUnchanged:'Source not updated, rate unchanged', rateErr:'Rate fetch failed, using fallback', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'Total Income', totalExpense:'Total Expense', netTotal:'Net Total',
+
+    btnToMark:'To Papiermark', btnToCny:'To CNY',
+
+    dataManager:'Data Backup', exportFile:'Export File', importFile:'Import File', textData:'Copy/Paste Data', copyData:'Copy Text', loadFromText:'Load from Text',
+
+    pastePlaceholder:'Paste backup text below and click load, or click export above...',
+
+    historyBtn:'Hyperinflation History',
+
+    guideTitle:'Local Data Guide:',
+
+    guideContent:`<b>1. Export / Import File:</b><br>Click "Export File" to download (open in browser if using WeChat), click "Import File" on another device to restore.<br><br>
+
+                  <b>2. Text Copy:</b><br>Click "Copy Text" to send to yourself, paste on another device and click "Load from Text".<br><br>
+
+                  <b>3. Multiple Tabs:</b><br>Open multiple tabs in the same browser, changes sync automatically!`,
+
+    historyTitle:'German Hyperinflation of 1923',
+
+    historyContent:`<p>In 1923, the Weimar Republic of Germany experienced one of the worst hyperinflations in history. After its defeat in WWI, Germany was forced to sign the Treaty of Versailles and bear massive war reparations. To pay these reparations and keep the country running, the government chose the simplest solution: printing money frantically.</p>
+
+                      <p>From 4.2 Marks per dollar before WWI in 1914, the exchange rate plummeted to <b>4.2 trillion Marks per dollar</b> by November 1923. Purchasing power evaporated instantly, and people pushed wheelbarrows full of cash to buy a single loaf of bread. Prices for everyday items doubled every hour.</p>
+
+                      <p>Hyperinflation completely destroyed the savings of the German middle class, plunging society into extreme turmoil. Finally, at the end of 1923, the government issued a new currency backed by land and industrial assets—the Rentenmark—replacing the old currency at a rate of 1 Rentenmark = 1 trillion Papiermark, barely halting the runaway inflation.</p>`,
+
+    syncSuccess:'Exported to file', syncLoadOk:'Data restored successfully', syncErr:'Invalid data format',
+
+    emptyHint:'No entries yet. Tap "Add" to start.', editTitle:'Edit Entry', newTitle:'New Entry',
+
+    type:'Type', expense:'Expense', income:'Income',
+
+    fieldName:'Name / Note', fieldNamePlaceholder:'e.g. Salary, Dining', fieldPrice:'Amount (CNY)', fieldDate:'Date', fieldImage:'Image',
+
+    delete:'Delete', cancel:'Cancel', save:'Save', toastSaved:'Saved', toastDeleted:'Deleted',
+
+    today:'Today', yesterday:'Yesterday', day:'Day', month:'Month', year:'Year',
+
+    yearIncome:'Year Income', yearExpense:'Year Expense', yearTotal:'Year Total',
+
+    monthIncome:'Month Income', monthExpense:'Month Expense', monthTotal:'Month Total',
+
+    dayIncome:'Day Income', dayExpense:'Day Expense', dayTotal:'Day Total',
+
+    bottomRate:`1 CNY ≈ <strong>{rate}</strong> Papiermark (November 1923 rate)`
+
+  },
+
+  'ja-JP': {
+
+    headerTitle:'ヴァイマル会計', add:'追加', rateLoading:'リアルタイム為替レート取得中…', rateOk:'レートを更新しました', rateUnchanged:'データソース未更新、レート変化なし', rateErr:'レート取得失敗、オフライン値を使用', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'総収入', totalExpense:'総支出', netTotal:'純額',
+
+    btnToMark:'マルクに切替', btnToCny:'人民元に切替',
+
+    dataManager:'データバックアップ', exportFile:'ファイル出力', importFile:'ファイル読込', textData:'データテキストのコピー/貼り付け', copyData:'テキストをコピー', loadFromText:'テキストから読込',
+
+    pastePlaceholder:'下にバックアップテキストを貼り付けて読み込むか、上記の出力をクリックしてください...',
+
+    historyBtn:'ハイパーインフレの歴史',
+
+    guideTitle:'ローカルデータ管理ガイド：',
+
+    guideContent:`<b>1. ファイルの出力 / 読込：</b><br>「ファイル出力」でダウンロードし（WeChat内の場合はブラウザで開いてください）、他のデバイスで「ファイル読込」で復元します。<br><br>
+
+                  <b>2. テキストコピー：</b><br>「テキストをコピー」をクリックして自分に送信し、他のデバイスで貼り付けて「テキストから読込」をクリックします。<br><br>
+
+                  <b>3. 複数タブ：</b><br>同じブラウザで複数のタブを開くと、変更が自動的に同期されます！`,
+
+    historyTitle:'1923年 ドイツのハイパーインフレーション',
+
+    historyContent:`<p>1923年、ドイツのヴァイマル共和国は史上最悪のハイパーインフレーションを経験しました。第一次世界大戦の敗戦後、ドイツはヴェルサイユ条約を結ばされ、巨額の戦争賠償金を背負いました。賠償金の支払いと国内の運営を維持するため、政府は最も乱暴な方法を選びました。紙幣の乱発です。</p>
+
+                      <p>1914年の第一次世界大戦勃発前は1米ドル＝4.2マルクでしたが、1923年11月には<b>1米ドル＝4.2兆マルク</b>にまで暴落しました。購買力は瞬時に蒸発し、人々は紙幣を満載した手押し車を押してパンを一切れ買いに行きました。マッチや切手などの日用品の価格は毎時倍増しました。</p>
+
+                      <p>ハイパーインフレはドイツの中産階級の貯蓄を完全に破壊し、社会は極度の混乱に陥りました。最終的に1923年末、政府は土地や産業資産を担保とする新通貨「レンテンマルク」を発行し、1レンテンマルク＝1兆パピエルマルクの比率で旧通貨を置き換え、ようやく暴走するインフレを食い止めました。</p>`,
+
+    syncSuccess:'ファイルに出力しました', syncLoadOk:'データを復元しました', syncErr:'データ形式が無効です',
+
+    emptyHint:'まだ項目がありません。右上の「追加」から始めましょう。', editTitle:'項目を編集', newTitle:'新規項目',
+
+    type:'種類', expense:'支出', income:'収入',
+
+    fieldName:'名称 / 備考', fieldNamePlaceholder:'例：給料、飲食', fieldPrice:'金額（人民元）', fieldDate:'日付', fieldImage:'画像',
+
+    delete:'削除', cancel:'キャンセル', save:'保存', toastSaved:'保存しました', toastDeleted:'削除しました',
+
+    today:'今日', yesterday:'昨日', day:'日', month:'月', year:'年',
+
+    yearIncome:'年収入', yearExpense:'年支出', yearTotal:'年純額',
+
+    monthIncome:'月収入', monthExpense:'月支出', monthTotal:'月純額',
+
+    dayIncome:'日収入', dayExpense:'日支出', dayTotal:'日純額',
+
+    bottomRate:`1 人民元 ≈ <strong>{rate}</strong> パピエルマルク（1923年11月レート）`
+
+  },
+
+  'de-DE': {
+
+    headerTitle:'Weimar-Haushaltsbuch', add:'Hinzufügen', rateLoading:'Live-Kurs wird geladen…', rateOk:'Live-Kurs aktualisiert', rateUnchanged:'Quelle nicht aktualisiert, Kurs unverändert', rateErr:'Kursabruf fehlgeschlagen, Fallback wird verwendet', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'Gesamteinnahmen', totalExpense:'Gesamtausgaben', netTotal:'Nettobetrag',
+
+    btnToMark:'Zu Papiermark', btnToCny:'Zu CNY',
+
+    dataManager:'Datensicherung', exportFile:'Datei exportieren', importFile:'Datei importieren', textData:'Daten kopieren/einfügen', copyData:'Text kopieren', loadFromText:'Aus Text laden',
+
+    pastePlaceholder:'Fügen Sie den Sicherungstext unten ein und klicken Sie auf Laden, oder klicken Sie oben auf Exportieren...',
+
+    historyBtn:'Hyperinflation',
+
+    guideTitle:'Lokale Datenverwaltung:',
+
+    guideContent:`<b>1. Export / Import Datei:</b><br>Klicken Sie auf „Datei exportieren“, um sie herunterzuladen (in WeChat bitte im Browser öffnen), und auf einem anderen Gerät auf „Datei importieren“, um sie wiederherzustellen.<br><br>
+
+                  <b>2. Textkopie:</b><br>Klicken Sie auf „Text kopieren“, senden Sie ihn an sich selbst, fügen Sie ihn auf einem anderen Gerät ein und klicken Sie auf „Aus Text laden“.<br><br>
+
+                  <b>3. Mehrere Tabs:</b><br>Öffnen Sie mehrere Tabs im selben Browser, Änderungen werden automatisch synchronisiert!`,
+
+    historyTitle:'Die deutsche Hyperinflation von 1923',
+
+    historyContent:`<p>Im Jahr 1923 erlebte die Weimarer Republik eine der schlimmsten Hyperinflationen der Geschichte. Nach der Niederlage im Ersten Weltkrieg wurde Deutschland gezwungen, den Vertrag von Versailles zu unterzeichnen und massive Reparationen zu zahlen. Um diese Zahlungen zu leisten und das Land am Laufen zu halten, wählte die Regierung die einfachste Lösung: hemmungsloses Gelddrucken.</p>
+
+                      <p>Von 4,2 Mark pro Dollar vor dem Ersten Weltkrieg im Jahr 1914 fiel der Wechselkurs bis November 1923 auf <b>4,2 Billionen Mark pro Dollar</b>. Die Kaufkraft verflüchtigte sich sofort, und die Menschen schoben Schubkarren voller Bargeld, um ein einziges Brot zu kaufen. Die Preise für Alltagsgegenstände verdoppelten sich stündlich.</p>
+
+                      <p>Die Hyperinflation zerstörte die Ersparnisse des deutschen Mittelstands vollständig und stürzte die Gesellschaft in extreme Turbulenzen. Ende 1923 gab die Regierung schließlich eine neue, durch Land und Industrieanlagen gedeckte Währung heraus – die Rentenmark – und ersetzte die alte Währung im Verhältnis 1 Rentenmark = 1 Billion Papiermark, wodurch die rasende Inflation kaum gestoppt werden konnte.</p>`,
+
+    syncSuccess:'In Datei exportiert', syncLoadOk:'Daten erfolgreich wiederhergestellt', syncErr:'Ungültiges Datenformat',
+
+    emptyHint:'Noch keine Einträge. Tippen Sie auf „Hinzufügen“.', editTitle:'Eintrag bearbeiten', newTitle:'Neuer Eintrag',
+
+    type:'Typ', expense:'Ausgabe', income:'Einnahme',
+
+    fieldName:'Name / Notiz', fieldNamePlaceholder:'z.B. Gehalt, Essen', fieldPrice:'Betrag (CNY)', fieldDate:'Datum', fieldImage:'Bild',
+
+    delete:'Löschen', cancel:'Abbrechen', save:'Speichern', toastSaved:'Gespeichert', toastDeleted:'Gelöscht',
+
+    today:'Heute', yesterday:'Gestern', day:'Tag', month:'Monat', year:'Jahr',
+
+    yearIncome:'Jahreseinnahmen', yearExpense:'Jahresausgaben', yearTotal:'Jahressaldo',
+
+    monthIncome:'Monatseinnahmen', monthExpense:'Monatsausgaben', monthTotal:'Monatssaldo',
+
+    dayIncome:'Tageseinnahmen', dayExpense:'Tagesausgaben', dayTotal:'Tagessaldo',
+
+    bottomRate:`1 CNY ≈ <strong>{rate}</strong> Papiermark (Kurs November 1923)`
+
+  },
+
+  'ru-RU': {
+
+    headerTitle:'Веймарская бухгалтерия', add:'Добавить', rateLoading:'Загрузка текущего курса…', rateOk:'Курс обновлен', rateUnchanged:'Источник не обновлен, курс не изменился', rateErr:'Не удалось получить курс, используется резервный', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'Общий доход', totalExpense:'Общие расходы', netTotal:'Итого',
+
+    btnToMark:'В бумажные марки', btnToCny:'В CNY',
+
+    dataManager:'Резервное копирование', exportFile:'Экспорт файла', importFile:'Импорт файла', textData:'Копировать/вставить данные', copyData:'Копировать текст', loadFromText:'Загрузить из текста',
+
+    pastePlaceholder:'Вставьте текст резервной копии ниже и нажмите загрузить, или нажмите экспорт выше...',
+
+    historyBtn:'История гиперинфляции',
+
+    guideTitle:'Руководство по управлению локальными данными:',
+
+    guideContent:`<b>1. Экспорт / импорт файла:</b><br>Нажмите «Экспорт файла» для скачивания (при использовании WeChat откройте в браузере), на другом устройстве нажмите «Импорт файла» для восстановления.<br><br>
+
+                  <b>2. Копирование текста:</b><br>Нажмите «Копировать текст», отправьте себе, вставьте на другом устройстве и нажмите «Загрузить из текста».<br><br>
+
+                  <b>3. Несколько вкладок:</b><br>Откройте несколько вкладок в одном браузере, изменения синхронизируются автоматически!`,
+
+    historyTitle:'Немецкая гиперинфляция 1923 года',
+
+    historyContent:`<p>В 1923 году Веймарская республика Германии пережила одну из самых сильных гиперинфляций в истории. После поражения в Первой мировой войне Германия была вынуждена подписать Версальский договор и выплатить огромные военные репарации. Чтобы оплатить репарации и поддержать работу страны, правительство выбрало самый простой путь: безудержную печать денег.</p>
+
+                      <p>С 4,2 марки за доллар до Первой мировой войны в 1914 году обменный курс упал до <b>4,2 триллиона марок за доллар</b> к ноябрю 1923 года. Покупательная способность мгновенно исчезла, люди возили тачки с наличными, чтобы купить один батон хлеба. Цены на предметы первой необходимости удваивались каждый час.</p>
+
+                      <p>Гиперинфляция полностью уничтожила сбережения немецкого среднего класса, погрузив общество в крайнее потрясение. Наконец, в конце 1923 года правительство выпустило новую валюту, обеспеченную землей и промышленными активами — рентную марку (Rentenmark), заменив старую валюту в соотношении 1 рентная марка = 1 триллион бумажных марок, что едва остановило разгулявшуюся инфляцию.</p>`,
+
+    syncSuccess:'Экспортировано в файл', syncLoadOk:'Данные успешно восстановлены', syncErr:'Неверный формат данных',
+
+    emptyHint:'Пока нет записей. Нажмите «Добавить», чтобы начать.', editTitle:'Редактировать запись', newTitle:'Новая запись',
+
+    type:'Тип', expense:'Расход', income:'Доход',
+
+    fieldName:'Название / примечание', fieldNamePlaceholder:'например: зарплата, питание', fieldPrice:'Сумма (CNY)', fieldDate:'Дата', fieldImage:'Изображение',
+
+    delete:'Удалить', cancel:'Отмена', save:'Сохранить', toastSaved:'Сохранено', toastDeleted:'Удалено',
+
+    today:'Сегодня', yesterday:'Вчера', day:'день', month:'месяц', year:'год',
+
+    yearIncome:'Доход за год', yearExpense:'Расход за год', yearTotal:'Итого за год',
+
+    monthIncome:'Доход за месяц', monthExpense:'Расход за месяц', monthTotal:'Итого за месяц',
+
+    dayIncome:'Доход за день', dayExpense:'Расход за день', dayTotal:'Итого за день',
+
+    bottomRate:`1 CNY ≈ <strong>{rate}</strong> бумажных марок (курс ноябрь 1923 г.)`
+
+  },
+
+  'fr-FR': {
+
+    headerTitle:'Carnet Weimar', add:'Ajouter', rateLoading:'Chargement du taux en cours…', rateOk:'Taux mis à jour', rateUnchanged:'Source non mise à jour, taux inchangé', rateErr:'Échec de récupération du taux, utilisation de la valeur de secours', usdToCny:'1 USD =', cny:'CNY',
+
+    totalIncome:'Revenus totaux', totalExpense:'Dépenses totales', netTotal:'Solde net',
+
+    btnToMark:'Vers Papier-mark', btnToCny:'Vers CNY',
+
+    dataManager:'Sauvegarde des données', exportFile:'Exporter le fichier', importFile:'Importer le fichier', textData:'Copier/coller les données', copyData:'Copier le texte', loadFromText:'Charger depuis le texte',
+
+    pastePlaceholder:'Collez le texte de sauvegarde ci-dessous et cliquez sur charger, ou cliquez sur exporter ci-dessus...',
+
+    historyBtn:'Histoire de l\'hyperinflation',
+
+    guideTitle:'Guide de gestion des données locales :',
+
+    guideContent:`<b>1. Exporter / importer un fichier :</b><br>Cliquez sur « Exporter le fichier » pour télécharger (ouvrez dans un navigateur si vous utilisez WeChat), cliquez sur « Importer le fichier » sur un autre appareil pour restaurer.<br><br>
+
+                  <b>2. Copie de texte :</b><br>Cliquez sur « Copier le texte », envoyez-le à vous-même, collez-le sur un autre appareil et cliquez sur « Charger depuis le texte ».<br><br>
+
+                  <b>3. Plusieurs onglets :</b><br>Ouvrez plusieurs onglets dans le même navigateur, les modifications se synchronisent automatiquement !`,
+
+    historyTitle:'L\'hyperinflation allemande de 1923',
+
+    historyContent:`<p>En 1923, la République de Weimar en Allemagne a connu l'une des pires hyperinflations de l'histoire. Après sa défaite pendant la Première Guerre mondiale, l'Allemagne a été contrainte de signer le traité de Versailles et de payer d'énormes réparations de guerre. Pour payer ces réparations et maintenir le pays en fonctionnement, le gouvernement a choisi la solution la plus simple : imprimer de l'argent sans retenue.</p>
+
+                      <p>De 4,2 marks par dollar avant la guerre en 1914, le taux de change est tombé à <b>4,2 billions de marks par dollar</b> en novembre 1923. Le pouvoir d'achat s'est évaporé instantanément, et les gens poussaient des brouettes pleines d'argent pour acheter un seul pain. Les prix des objets du quotidien doublaient toutes les heures.</p>
+
+                      <p>L'hyperinflation a complètement détruit l'épargne de la classe moyenne allemande, plongeant la société dans un tumulte extrême. Finalement, à la fin de 1923, le gouvernement a émis une nouvelle devise adossée à la terre et aux actifs industriels — le Rentenmark — remplaçant l'ancienne devise à raison de 1 Rentenmark pour 1 billion de Papier-mark, stoppant à peine l'inflation galopante.</p>`,
+
+    syncSuccess:'Exporté dans le fichier', syncLoadOk:'Données restaurées avec succès', syncErr:'Format de données invalide',
+
+    emptyHint:'Aucune entrée pour l\'instant. Appuyez sur « Ajouter » pour commencer.', editTitle:'Modifier l\'entrée', newTitle:'Nouvelle entrée',
+
+    type:'Type', expense:'Dépense', income:'Revenu',
+
+    fieldName:'Nom / note', fieldNamePlaceholder:'par ex. Salaire, Restauration', fieldPrice:'Montant (CNY)', fieldDate:'Date', fieldImage:'Image',
+
+    delete:'Supprimer', cancel:'Annuler', save:'Enregistrer', toastSaved:'Enregistré', toastDeleted:'Supprimé',
+
+    today:'Aujourd\'hui', yesterday:'Hier', day:'jour', month:'mois', year:'année',
+
+    yearIncome:'Revenus annuels', yearExpense:'Dépenses annuelles', yearTotal:'Total annuel',
+
+    monthIncome:'Revenus mensuels', monthExpense:'Dépenses mensuelles', monthTotal:'Total mensuel',
+
+    dayIncome:'Revenus journaliers', dayExpense:'Dépenses journalières', dayTotal:'Total journalier',
+
+    bottomRate:`1 CNY ≈ <strong>{rate}</strong> Papier-marks (taux de novembre 1923)`
+
+  }
+
+};
+
+
+/* 状态 */
+
+let entries = [];
+
+let realRate = FALLBACK_USD_CNY;
+
+let usdCnyRate = FALLBACK_USD_CNY;
+
+let currentLang = 'zh-CN';
+
+let isPapiermarkMode = false;
+
+let editingId = null;
+
+let historyWin = null;
+
+let rateStatus = 'loading';
+
+// 左滑状态
+
+let activeSwipeEntry = null;
+
+let swipeStartX = 0;
+
+let swipeStartY = 0;
+
+let swipeStartOffset = 0;
+
+let isSwiping = false;
+
+let swipeLockDirection = false; // 方向锁定标记
+
+let justSwiped = false; // 刚完成滑动的标记，防止触发点击事件
+
+
+// 名称滚动状态
+
+let isScrollingName = false;
+
+let nameScrollEl = null;
+
+let nameScrollStartX = 0;
+
+let nameScrollStartLeft = 0;
+
+
+/* DOM 引用 */
+
+const $ = id => document.getElementById(id);
+
+const modalOverlay = $('modalOverlay');
+
+const syncModalOverlay = $('syncModalOverlay');
+
+const historyOverlay = $('historyOverlay');
+
+const modalTitle = $('modalTitle');
+
+const fType = $('fType'), fName = $('fName'), fPrice = $('fPrice');
+
+const fYear = $('fYear'), fMonth = $('fMonth'), fDay = $('fDay');
+
+const deleteBtn = $('deleteBtn');
+
+const listContainer = $('listContainer');
+
+const emptyState = $('emptyState');
+
+const toast = $('toast');
+
+const usdRateDisplay = $('usdCnyRate');
+
+const rateTimeEl = $('rateTime');
+
+const dataTextArea = $('dataTextArea');
+
+
+/* 主题切换 */
+
+function applyTheme(theme) {
+
+  document.documentElement.setAttribute('data-theme', theme);
+
+  $('themeBtn').textContent = theme === 'light' ? '🌙' : '☀️';
+
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+
+}
+
+function initTheme() {
+
+  let saved = 'light';
+
+  try { saved = localStorage.getItem(THEME_KEY) || 'light'; } catch (e) {}
+
+  applyTheme(saved);
+
+  $('themeBtn').addEventListener('click', () => {
+
+    const cur = document.documentElement.getAttribute('data-theme') || 'light';
+
+    applyTheme(cur === 'light' ? 'dark' : 'light');
+
+  });
+
+}
+
+
+/* 汇率状态文本 */
+
+function updateRateStatusText() {
+
+  const map = { loading: 'rateLoading', ok: 'rateOk', unchanged: 'rateUnchanged', err: 'rateErr' };
+
+  const el = $('rateText');
+
+  if (el) el.textContent = t(map[rateStatus] || 'rateLoading');
+
+}
+
+
+/* 金额渲染 */
+
+function renderMoney(str) {
+
+  if (!str || str === '—') return '<span class="money-num">—</span>';
+
+  const idx = str.search(/[-\d]/);
+
+  if (idx === -1) return `<span class="money-num">${str}</span>`;
+
+  const sym = str.slice(0, idx).trim();
+
+  const num = str.slice(idx);
+
+  const symHtml = sym ? `<span class="money-sym">${sym}</span>` : '';
+
+  return `${symHtml}<span class="money-num">${num}</span>`;
+
+}
+
+
+/* 日期工具 */
+
+function isLeapYear(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
+
+function getDaysInMonth(y, m) {
+
+  if (!y || !m) return 31;
+
+  const monthDays = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+  if (m === 2 && isLeapYear(y)) return 29;
+
+  return monthDays[m - 1] || 31;
+
+}
+
+function validateDateInput() {
+
+  let y = parseInt(fYear.value), m = parseInt(fMonth.value), d = parseInt(fDay.value);
+
+  if (isNaN(y)) y = new Date().getFullYear();
+
+  if (isNaN(m)) m = new Date().getMonth() + 1;
+
+  if (isNaN(d)) d = 1;
+
+  if (m < 1) { m = 1; fMonth.value = 1; }
+
+  if (m > 12) { m = 12; fMonth.value = 12; }
+
+  const maxDays = getDaysInMonth(y, m);
+
+  if (d < 1) { d = 1; fDay.value = 1; }
+
+  if (d > maxDays) { d = maxDays; fDay.value = maxDays; }
+
+  if (fDay.value === '') fDay.value = 1;
+
+  fDay.setAttribute('max', maxDays);
+
+}
+
+fYear.addEventListener('input', validateDateInput);
+
+fMonth.addEventListener('input', validateDateInput);
+
+fDay.addEventListener('input', validateDateInput);
+
+
+function parseDate(str) {
+
+  if (!str) return null;
+
+  const [y, m, d] = str.split('-').map(Number);
+
+  return new Date(y, m - 1, d);
+
+}
+
+function fmtDate(d) {
+
+  const y = d.getFullYear();
+
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+
+  const dd = String(d.getDate()).padStart(2, '0');
+
+  return `${y}-${m}-${dd}`;
+
+}
+
+function todayStr() { return fmtDate(new Date()); }
+
+
+function formatVal(v, isMark) {
+
+  if (!isFinite(v)) return '—';
+
+  const num = isMark ? (v / usdCnyRate * MARK_PER_USD) : v;
+
+  const formatted = Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const sign = num < 0 ? '-' : '';
+
+  const symbol = isMark ? 'ℳ ' : '￥ ';
+
+  return `${symbol}${sign}${formatted}`;
+
+}
+
+function formatNum(v) {
+
+  if (!isFinite(v)) return '—';
+
+  return Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+}
+
+function fmtMain(v) { return formatVal(v, isPapiermarkMode); }
+
+function displayDate(str, lang) {
+
+  const d = parseDate(str);
+
+  if (!d) return '';
+
+  if (lang === 'zh-CN' || lang === 'zh-TW' || lang === 'ja-JP') {
+
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+
+  }
+
+  return d.toLocaleDateString(lang === 'de-DE' ? 'de-DE' : (lang === 'fr-FR' ? 'fr-FR' : (lang === 'ru-RU' ? 'ru-RU' : 'en-GB')), { day: '2-digit', month: 'short', year: 'numeric' });
+
+}
+
+
+/* 汇总卡片字号自适应 */
+
+function fitSummaryCards() {
+
+  const initial = window.innerWidth <= 600 ? 15 : 18;
+
+  document.querySelectorAll('.summary-card .value').forEach(el => {
+
+    el.style.fontSize = initial + 'px';
+
+    let size = initial, guard = 0;
+
+    while (size > 9 && el.scrollWidth > el.clientWidth + 1 && guard < 40) {
+
+      size -= 0.5;
+
+      el.style.fontSize = size + 'px';
+
+      guard++;
+
+    }
+
+  });
+
+}
+
+
+/* 条目价格字号自适应：数字过长自动缩小 */
+
+function fitEntryPrices() {
+
+  const isNarrow = window.innerWidth <= 600;
+
+  const mainInitial = isNarrow ? 14 : 14;
+
+  const subInitial = isNarrow ? 11 : 11;
+
+  // 主价格
+
+  document.querySelectorAll('.entry-price .p-main').forEach(el => {
+
+    el.style.fontSize = mainInitial + 'px';
+
+    let size = mainInitial;
+
+    let guard = 0;
+
+    while (size > 10 && el.scrollWidth > el.clientWidth + 1 && guard < 20) {
+
+      size -= 0.5;
+
+      el.style.fontSize = size + 'px';
+
+      guard++;
+
+    }
+
+  });
+
+  // 辅助价格
+
+  document.querySelectorAll('.entry-price .p-sub').forEach(el => {
+
+    el.style.fontSize = subInitial + 'px';
+
+    let size = subInitial;
+
+    let guard = 0;
+
+    while (size > 9 && el.scrollWidth > el.clientWidth + 1 && guard < 20) {
+
+      size -= 0.5;
+
+      el.style.fontSize = size + 'px';
+
+      guard++;
+
+    }
+
+  });
+
+}
+
+
+/* 移动端检测 */
+
+function isMobileDevice() {
+
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent)
+
+    || (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
+
+}
+
+/* ---------- 左滑交互核心逻辑 ---------- */
+
+function getSwipeActionWidth() {
+
+  // 读取CSS变量中的操作区宽度
+
+  const style = getComputedStyle(document.documentElement);
+
+  const width = parseInt(style.getPropertyValue('--swipe-action-width'));
+
+  return isFinite(width) ? width : 88;
+
+}
+
+function getEventPoint(e) {
+
+  if (e.touches && e.touches.length) {
+
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+  }
+
+  return { x: e.clientX, y: e.clientY };
+
+}
+
+function closeAllSwipe(exceptEntry = null) {
+
+  document.querySelectorAll('.entry.open').forEach(entry => {
+
+    if (entry !== exceptEntry) {
+
+      entry.classList.remove('open');
+
+      const content = entry.querySelector('.entry-content');
+
+      if (content) content.style.transform = '';
+
+    }
+
+  });
+
+}
+
+function handleSwipeStart(e) {
+
+  const entry = e.target.closest('.entry');
+
+  if (!entry) return;
+
+  // 点击操作按钮本身不触发滑动
+
+  if (e.target.closest('.entry-actions')) return;
+
+  const point = getEventPoint(e);
+
+  swipeStartX = point.x;
+
+  swipeStartY = point.y;
+
+  activeSwipeEntry = entry;
+
+  isSwiping = false;
+
+  swipeLockDirection = false;
+
+  justSwiped = false;
+
+  // 检测是否在名称滚动区域开始
+
+  const nameScroll = e.target.closest('.entry-name-scroll');
+
+  if (nameScroll) {
+
+    isScrollingName = true;
+
+    nameScrollEl = nameScroll;
+
+    nameScrollStartX = point.x;
+
+    nameScrollStartLeft = nameScroll.scrollLeft;
+
+  } else {
+
+    isScrollingName = false;
+
+    nameScrollEl = null;
+
+  }
+
+  const content = entry.querySelector('.entry-content');
+
+  if (content) {
+
+    // 移除过渡，实时跟随手指
+
+    content.style.transition = 'none';
+
+    // 读取当前偏移量
+
+    const transform = window.getComputedStyle(content).transform;
+
+    if (transform !== 'none') {
+
+      const matrix = new DOMMatrix(transform);
+
+      swipeStartOffset = matrix.m41;
+
+    } else {
+
+      swipeStartOffset = 0;
+
+    }
+
+  }
+
+  // 收起其他已展开的条目
+
+  closeAllSwipe(entry);
+
+}
+
+function handleSwipeMove(e) {
+
+  const point = getEventPoint(e);
+
+  const deltaX = point.x - swipeStartX;
+
+  const deltaY = point.y - swipeStartY;
+
+  // 优先处理名称滚动
+
+  if (isScrollingName && nameScrollEl) {
+
+    if (e.cancelable) e.preventDefault();
+
+    
+
+    // 计算目标滚动位置
+
+    const targetLeft = nameScrollStartLeft - deltaX;
+
+    const maxScroll = nameScrollEl.scrollWidth - nameScrollEl.clientWidth;
+
+    
+
+    // 限制滚动范围
+
+    nameScrollEl.scrollLeft = Math.max(0, Math.min(maxScroll, targetLeft));
+
+    // 关键：只有当文字已经滑到最左端，且继续向左滑时，才触发条目左滑
+
+    if (nameScrollEl.scrollLeft <= 0 && deltaX < -SWIPE_THRESHOLD) {
+
+      isScrollingName = false;
+
+      nameScrollEl = null;
+
+      // 重置滑动起始点，从当前位置开始算条目左滑
+
+      swipeStartX = point.x;
+
+      swipeStartOffset = 0;
+
+    } else {
+
+      // 还在滚动文字范围内，不处理条目滑动
+
+      return;
+
+    }
+
+  }
+
+  if (!activeSwipeEntry) return;
+
+  // 方向锁定：一旦判定为垂直滚动，全程不再触发滑动
+
+  if (!swipeLockDirection) {
+
+    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+
+      swipeLockDirection = true;
+
+      activeSwipeEntry = null;
+
+      return;
+
+    }
+
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+
+      swipeLockDirection = true;
+
+      isSwiping = true;
+
+    }
+
+  }
+
+  if (isSwiping) {
+
+    // 阻止页面水平滚动
+
+    if (e.cancelable) e.preventDefault();
+
+    const content = activeSwipeEntry.querySelector('.entry-content');
+
+    if (!content) return;
+
+    const actionWidth = getSwipeActionWidth();
+
+    let targetX = swipeStartOffset + deltaX;
+
+    // 限制滑动范围：0（收起） ~ -actionWidth（完全展开）
+
+    targetX = Math.max(-actionWidth, Math.min(0, targetX));
+
+    content.style.transform = `translateX(${targetX}px)`;
+
+  }
+
+}
+
+function handleSwipeEnd() {
+
+  // 重置名称滚动状态
+
+  isScrollingName = false;
+
+  nameScrollEl = null;
+
+  if (!activeSwipeEntry) {
+
+    swipeLockDirection = false;
+
+    return;
+
+  }
+
+  const content = activeSwipeEntry.querySelector('.entry-content');
+
+  if (!content) {
+
+    activeSwipeEntry = null;
+
+    isSwiping = false;
+
+    swipeLockDirection = false;
+
+    return;
+
+  }
+
+  // 恢复过渡动画
+
+  content.style.transition = '';
+
+  // 读取当前偏移
+
+  const transform = window.getComputedStyle(content).transform;
+
+  let currentX = 0;
+
+  if (transform !== 'none') {
+
+    const matrix = new DOMMatrix(transform);
+
+    currentX = matrix.m41;
+
+  }
+
+  const actionWidth = getSwipeActionWidth();
+
+  const wasOpen = activeSwipeEntry.classList.contains('open');
+
+  
+
+  // 超过一半宽度则展开，否则回弹收起
+
+  if (currentX < -actionWidth / 2) {
+
+    activeSwipeEntry.classList.add('open');
+
+    content.style.transform = `translateX(${-actionWidth}px)`;
+
+    // 如果是新展开的，标记为刚滑动过
+
+    if (!wasOpen) {
+
+      justSwiped = true;
+
+      setTimeout(() => { justSwiped = false; }, 300);
+
+    }
+
+  } else {
+
+    activeSwipeEntry.classList.remove('open');
+
+    content.style.transform = '';
+
+    // 如果是从展开状态收起来的，也标记一下
+
+    if (wasOpen) {
+
+      justSwiped = true;
+
+      setTimeout(() => { justSwiped = false; }, 300);
+
+    }
+
+  }
+
+  activeSwipeEntry = null;
+
+  isSwiping = false;
+
+  swipeLockDirection = false;
+
+}
+
+
+/* 历史页面 */
+
+function openHistoryPage() {
+
+  if (isMobileDevice()) { showHistoryOverlay(); return; }
+
+  let newWin = null;
+
+  try { newWin = window.open('', '_blank'); } catch(e) {}
+
+  if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') { showHistoryOverlay(); return; }
+
+  try {
+
+    const doc = newWin.document;
+
+    if (!doc) throw new Error('no document');
+
+    const title = t('historyTitle'), content = t('historyContent');
+
+    
+
+    // 获取当前主题，适配新窗口样式
+
+    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+
+    const isLight = theme === 'light';
+
+    const themeVars = {
+
+      bg: isLight ? '#f4f5f7' : '#0b0d12',
+
+      surface: isLight ? '#ffffff' : '#141821',
+
+      text: isLight ? '#1a1d24' : '#e6eaf2',
+
+      muted: isLight ? '#6b7280' : '#8a94a8',
+
+      accent: isLight ? '#b8862f' : '#d4a24c',
+
+      bodyGlow: isLight ? '#e8ecf3' : '#1b2233',
+
+      border: isLight ? '#d8dce4' : '#262d3a',
+
+      shadow: isLight ? 'rgba(0,0,0,.12)' : 'rgba(0,0,0,.35)',
+
+      numFont: "'Hoefler Text', 'Georgia', 'EB Garamond', 'Times New Roman', serif"
+
+    };
+
+    doc.write(`
+
+      <!DOCTYPE html><html lang="${currentLang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title>
+
+      <style>:root { 
+
+        --bg: ${themeVars.bg}; 
+
+        --surface: ${themeVars.surface}; 
+
+        --text: ${themeVars.text}; 
+
+        --muted: ${themeVars.muted}; 
+
+        --accent: ${themeVars.accent};
+
+        --border: ${themeVars.border};
+
+      }
+
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: radial-gradient(1100px 500px at 50% -8%, ${themeVars.bodyGlow} 0%, var(--bg) 60%); color: var(--text); min-height: 100vh; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; -webkit-font-smoothing: antialiased; }
+
+      .container { max-width: 760px; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: 0 12px 36px ${themeVars.shadow}; }
+
+      .rate-display { 
+
+        text-align: center; 
+
+        font-size: 18px; 
+
+        font-weight: 600; 
+
+        color: var(--accent); 
+
+        margin-bottom: 30px; 
+
+        padding-bottom: 15px; 
+
+        border-bottom: 1px dashed var(--border);
+
+        font-family: ${themeVars.numFont};
+
+        font-variant-numeric: oldstyle-nums;
+
+        font-feature-settings: "onum" 1;
+
+        font-style: italic;
+
+      }
+
+      h1 { font-size: 24px; margin-bottom: 24px; text-align: center; color: var(--text); }
+
+      .content { font-size: 15px; line-height: 1.9; color: var(--muted); }
+
+      .content p { margin-bottom: 16px; } .content b { color: var(--text); }
+
+      </style></head><body><div class="container"><div class="rate-display" id="rateDisplay">1 CNY ≈ ...</div><h1>${title}</h1><div class="content">${content}</div></div>
+
+      <script>window.addEventListener('message', (e) => { if (e.data && e.data.type === 'update') { document.getElementById('rateDisplay').innerHTML = e.data.rateHtml; document.querySelector('h1').textContent = e.data.title; document.querySelector('.content').innerHTML = e.data.content; document.title = e.data.title; } });<\/script></body></html>
+
+    `);
+
+    doc.close();
+
+    historyWin = newWin;
+
+  } catch (e) {
+
+    try { newWin.close(); } catch (_) {}
+
+    historyWin = null;
+
+    showHistoryOverlay();
+
+    return;
+
+  }
+
+  setTimeout(() => {
+
+    if (!newWin || newWin.closed) { historyWin = null; showHistoryOverlay(); }
+
+    else { sendHistoryData(); }
+
+  }, 400);
+
+}
+
+function showHistoryOverlay() {
+
+  const cnyToPm = MARK_PER_USD / usdCnyRate;
+
+  const rateStr = cnyToPm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  $('historyRateDisplay').innerHTML = t('bottomRate').replace('{rate}', rateStr);
+
+  $('historyTitle').textContent = t('historyTitle');
+
+  $('historyContent').innerHTML = t('historyContent');
+
+  historyOverlay.classList.add('show');
+
+  document.body.style.overflow = 'hidden';
+
+}
+
+function hideHistoryOverlay() {
+
+  historyOverlay.classList.remove('show');
+
+  document.body.style.overflow = '';
+
+}
+
+function sendHistoryData() {
+
+  if (!historyWin || historyWin.closed) return;
+
+  const cnyToPm = MARK_PER_USD / usdCnyRate;
+
+  const rateStr = cnyToPm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const rateHtml = t('bottomRate').replace('{rate}', rateStr);
+
+  historyWin.postMessage({ type: 'update', rateHtml, title: t('historyTitle'), content: t('historyContent') }, '*');
+
+}
+
+
+/* i18n */
+
+function t(key) {
+
+  return (I18N[currentLang] && I18N[currentLang][key]) || I18N['zh-CN'][key] || key;
+
+}
+
+function applyI18n() {
+
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+
+  const cloudGuideEl = $('cloudGuide');
+
+  if (cloudGuideEl) cloudGuideEl.innerHTML = `<b>${t('guideTitle')}</b><br>${t('guideContent')}`;
+
+  const h1 = document.querySelector('header h1');
+
+  if (h1) h1.textContent = t('headerTitle');
+
+  document.documentElement.lang = currentLang;
+
+  updateRateStatusText();
+
+  if (historyWin && !historyWin.closed) sendHistoryData();
+
+  if (historyOverlay.classList.contains('show')) showHistoryOverlay();
+
+}
+
+
+/* 汇率获取 */
+
+function extractUsdCny(data) {
+
+  if (!data) return null;
+
+  if (data.rates && data.rates.CNY != null) {
+
+    const r = parseFloat(data.rates.CNY);
+
+    return isFinite(r) && r > 0 ? r : null;
+
+  }
+
+  if (Array.isArray(data)) {
+
+    const row = data.find(item => item && item.quote === 'CNY' && item.rate != null);
+
+    if (row) {
+
+      const r = parseFloat(row.rate);
+
+      return isFinite(r) && r > 0 ? r : null;
+
+    }
+
+  }
+
+  return null;
+
+}
+
+async function fetchRateFromWeb() {
+
+  for (const url of RATE_SOURCES) {
+
+    try {
+
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+
+      if (!res.ok) continue;
+
+      const data = await res.json();
+
+      const rate = extractUsdCny(data);
+
+      if (rate) return rate;
+
+    } catch (e) { }
+
+  }
+
+  return null;
+
+}
+
+async function fetchRealRate(manual = false) {
+
+  const btn = $('refreshRate');
+
+  const oldRate = realRate;
+
+  if (manual) {
+
+    rateStatus = 'loading';
+
+    updateRateStatusText();
+
+    btn.classList.add('spinning');
+
+    btn.disabled = true;
+
+    $('rateDot').className = 'dot loading';
+
+  }
+
+  const newRate = await fetchRateFromWeb();
+
+  if (newRate && newRate > 0) {
+
+    realRate = newRate;
+
+    usdCnyRate = realRate;
+
+    persistRate(realRate);
+
+    usdRateDisplay.textContent = usdCnyRate.toFixed(4);
+
+    $('rateDot').className = 'dot ok';
+
+    rateStatus = manual ? (Math.abs(oldRate - realRate) < 1e-6 ? 'unchanged' : 'ok') : 'ok';
+
+    updateRateStatusText();
+
+    updateAmounts();
+
+  } else {
+
+    const cached = loadRateCache();
+
+    realRate = cached ? cached.rate : FALLBACK_USD_CNY;
+
+    usdCnyRate = realRate;
+
+    usdRateDisplay.textContent = usdCnyRate.toFixed(4);
+
+    $('rateDot').className = 'dot err';
+
+    rateStatus = 'err';
+
+    updateRateStatusText();
+
+    updateAmounts();
+
+  }
+
+  if (manual) {
+
+    btn.classList.remove('spinning');
+
+    btn.disabled = false;
+
+  }
+
+}
+
+function persistRate(rate) {
+
+  try { localStorage.setItem(RATE_CACHE_KEY, JSON.stringify({ rate, date: todayStr() })); } catch (e) {}
+
+}
+
+function loadRateCache() {
+
+  try {
+
+    const raw = localStorage.getItem(RATE_CACHE_KEY);
+
+    if (!raw) return null;
+
+    const obj = JSON.parse(raw);
+
+    return (obj.rate && obj.date) ? obj : null;
+
+  } catch (e) { return null; }
+
+}
+
+function startRateTicker() {
+
+  setInterval(() => {
+
+    const jitter = (Math.random() - 0.5) * 0.0006;
+
+    usdCnyRate = realRate + jitter;
+
+    usdRateDisplay.textContent = usdCnyRate.toFixed(4);
+
+    rateTimeEl.textContent = new Date().toLocaleTimeString();
+
+    usdRateDisplay.classList.remove('flash');
+
+    void usdRateDisplay.offsetWidth;
+
+    usdRateDisplay.classList.add('flash');
+
+    updateAmounts();
+
+    if (historyWin && !historyWin.closed) sendHistoryData();
+
+    if (historyOverlay.classList.contains('show')) {
+
+      const cnyToPm = MARK_PER_USD / usdCnyRate;
+
+      const rateStr = cnyToPm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      $('historyRateDisplay').innerHTML = t('bottomRate').replace('{rate}', rateStr);
+
+    }
+
+  }, 1000);
+
+}
+
+
+function updateAmounts() {
+
+  const { inc, exp, tot } = calculateTotals();
+
+  $('sumIncome').innerHTML = renderMoney(fmtMain(inc));
+
+  $('sumExpense').innerHTML = renderMoney(fmtMain(exp));
+
+  $('sumTotal').innerHTML = renderMoney(fmtMain(tot));
+
+  const cnyToPm = MARK_PER_USD / usdCnyRate;
+
+  const rateStr = cnyToPm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  $('rateInfo').innerHTML = t('bottomRate').replace('{rate}', rateStr);
+
+  document.querySelectorAll('.entry-price .p-pm').forEach(el => {
+
+    const cny = parseFloat(el.dataset.cny);
+
+    if (isNaN(cny)) return;
+
+    const pm = cny / usdCnyRate * MARK_PER_USD;
+
+    el.innerHTML = renderMoney(`ℳ ${pm < 0 ? '-' : ''}${formatNum(pm)}`);
+
+  });
+
+  document.querySelectorAll('.gh-stat').forEach(el => {
+
+    const val = parseFloat(el.dataset.val);
+
+    if (isNaN(val)) return;
+
+    el.innerHTML = `${el.dataset.label}: ${renderMoney(fmtMain(val))}`;
+
+  });
+
+  fitSummaryCards();
+
+  fitEntryPrices();
+
+}
+
+
+/* 数据与列表渲染 */
+
+function loadEntries() {
+
+  try {
+
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    entries = raw ? JSON.parse(raw) : [];
+
+    if (!Array.isArray(entries)) entries = [];
+
+    entries.forEach(e => {
+
+      if (!e.type) e.type = 'expense';
+
+      if (!e.id) e.id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random();
+
+    });
+
+  } catch (e) { entries = []; }
+
+}
+
+function saveEntries() {
+
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch (e) {}
+
+}
+
+function exportData() {
+
+  if (!entries || entries.length === 0) { toastMsg('当前没有数据可以导出'); return; }
+
+  try {
+
+    const blob = new Blob([JSON.stringify(entries, null, 2)], { type: "application/json" });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+
+    a.href = url; a.download = `weimar_ledger_${todayStr()}.json`; a.style.display = 'none';
+
+    document.body.appendChild(a); a.click();
+
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+
+    toastMsg(t('syncSuccess'));
+
+  } catch (err) { toastMsg('导出失败，请使用下方的“复制文本”'); }
+
+}
+
+function handleImportFile(event) {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+
+    try {
+
+      const imported = JSON.parse(e.target.result);
+
+      if (Array.isArray(imported)) {
+
+        entries = imported;
+
+        entries.forEach(e => { if (!e.id) e.id = Date.now() + '-' + Math.random(); });
+
+        saveEntries(); render(); closeSyncModal(); toastMsg(t('syncLoadOk'));
+
+      } else throw new Error();
+
+    } catch (err) { toastMsg(t('syncErr')); }
+
+  };
+
+  reader.readAsText(file);
+
+  event.target.value = '';
+
+}
+
+function copyText() {
+
+  if (!entries || entries.length === 0) { toastMsg('当前没有数据'); return; }
+
+  const text = JSON.stringify(entries);
+
+  navigator.clipboard.writeText(text).then(() => toastMsg(t('copyData'))).catch(() => {
+
+    dataTextArea.value = text; dataTextArea.select(); document.execCommand('copy'); toastMsg(t('copyData'));
+
+  });
+
+}
+
+function loadFromText() {
+
+  try {
+
+    const text = dataTextArea.value.trim();
+
+    if (!text) return;
+
+    const imported = JSON.parse(text);
+
+    if (Array.isArray(imported)) {
+
+      entries = imported;
+
+      entries.forEach(e => { if (!e.id) e.id = Date.now() + '-' + Math.random(); });
+
+      saveEntries(); render(); closeSyncModal(); toastMsg(t('syncLoadOk'));
+
+    } else throw new Error();
+
+  } catch (e) { toastMsg(t('syncErr')); }
+
+}
+
+window.addEventListener('storage', (e) => { if (e.key === STORAGE_KEY) { loadEntries(); render(); } });
+
+
+function calculateTotals() {
+
+  let inc = 0, exp = 0;
+
+  entries.forEach(e => { e.type === 'income' ? inc += e.price : exp -= e.price; });
+
+  return { inc, exp, tot: inc + exp };
+
+}
+
+
+function render() {
+
+  applyI18n();
+
+  $('toggleModeBtn').textContent = isPapiermarkMode ? t('btnToCny') : t('btnToMark');
+
+  if (!entries.length) {
+
+    listContainer.innerHTML = ''; emptyState.style.display = 'block'; updateAmounts(); return;
+
+  }
+
+  emptyState.style.display = 'none';
+
+  const years = {};
+
+  entries.forEach(e => {
+
+    const d = parseDate(e.date); if (!d) return;
+
+    const y = d.getFullYear(), m = d.getMonth() + 1, dd = d.getDate();
+
+    if (!years[y]) years[y] = {};
+
+    if (!years[y][m]) years[y][m] = {};
+
+    if (!years[y][m][dd]) years[y][m][dd] = [];
+
+    years[y][m][dd].push(e);
+
+  });
+
+  const sortedYears = Object.keys(years).sort((a, b) => b - a);
+
+  let html = '';
+
+  sortedYears.forEach(y => {
+
+    let yInc = 0, yExp = 0;
+
+    Object.values(years[y]).flatMap(m => Object.values(m).flat()).flat().forEach(e => {
+
+      e.type === 'income' ? yInc += e.price : yExp -= e.price;
+
+    });
+
+    const yTot = yInc + yExp;
+
+    html += `<div class="group year-group open"><div class="group-header" onclick="toggleGroup(this)"><div class="gh-left"><span class="chevron">▶</span><span class="group-title">${y}${t('year')}</span></div><div class="gh-stats"><span class="gh-stat income" data-val="${yInc}" data-label="${t('yearIncome')}">${t('yearIncome')}: ${renderMoney(fmtMain(yInc))}</span><span class="gh-stat expense" data-val="${yExp}" data-label="${t('yearExpense')}">${t('yearExpense')}: ${renderMoney(fmtMain(yExp))}</span><span class="gh-stat total" data-val="${yTot}" data-label="${t('yearTotal')}">${t('yearTotal')}: ${renderMoney(fmtMain(yTot))}</span></div></div><div class="group-body">`;
+
+    Object.keys(years[y]).sort((a, b) => b - a).forEach(m => {
+
+      let mInc = 0, mExp = 0;
+
+      Object.values(years[y][m]).flat().forEach(e => { e.type === 'income' ? mInc += e.price : mExp -= e.price; });
+
+      const mTot = mInc + mExp;
+
+      html += `<div class="group month-group open"><div class="group-header" onclick="toggleGroup(this)"><div class="gh-left"><span class="chevron">▶</span><span class="group-title">${m}${t('month')}</span></div><div class="gh-stats"><span class="gh-stat income" data-val="${mInc}" data-label="${t('monthIncome')}">${t('monthIncome')}: ${renderMoney(fmtMain(mInc))}</span><span class="gh-stat expense" data-val="${mExp}" data-label="${t('monthExpense')}">${t('monthExpense')}: ${renderMoney(fmtMain(mExp))}</span><span class="gh-stat total" data-val="${mTot}" data-label="${t('monthTotal')}">${t('monthTotal')}: ${renderMoney(fmtMain(mTot))}</span></div></div><div class="group-body">`;
+
+      Object.keys(years[y][m]).sort((a, b) => b - a).forEach(dd => {
+
+        const dayEntries = years[y][m][dd];
+
+        let dInc = 0, dExp = 0;
+
+        dayEntries.forEach(e => { e.type === 'income' ? dInc += e.price : dExp -= e.price; });
+
+        const dTot = dInc + dExp;
+
+        html += `<div class="group day-group open"><div class="group-header" onclick="toggleGroup(this)"><div class="gh-left"><span class="chevron">▶</span><span class="group-title">${dd}${t('day')}</span></div><div class="gh-stats"><span class="gh-stat income" data-val="${dInc}" data-label="${t('dayIncome')}">${t('dayIncome')}: ${renderMoney(fmtMain(dInc))}</span><span class="gh-stat expense" data-val="${dExp}" data-label="${t('dayExpense')}">${t('dayExpense')}: ${renderMoney(fmtMain(dExp))}</span><span class="gh-stat total" data-val="${dTot}" data-label="${t('dayTotal')}">${t('dayTotal')}: ${renderMoney(fmtMain(dTot))}</span></div></div><div class="group-body">`;
+
+        dayEntries.forEach(e => { html += entryHTML(e); });
+
+        html += `</div></div>`;
+
+      });
+
+      html += `</div></div>`;
+
+    });
+
+    html += `</div></div>`;
+
+  });
+
+  listContainer.innerHTML = html;
+
+  updateAmounts();
+
+}
+
+
+window.toggleGroup = function(headerEl) { headerEl.parentElement.classList.toggle('open'); };
+
+
+/* 条目HTML - 左滑结构：操作按钮后置，内容层前置覆盖 */
+
+function entryHTML(e) {
+
+  const isInc = e.type === 'income';
+
+  const priceColor = isInc ? 'var(--green)' : 'var(--red)';
+
+  const iconColor = isInc ? 'var(--green)' : 'var(--red)';
+
+  const iconChar = isInc ? '↑' : '↓';
+
+  const valCNY = isInc ? e.price : -e.price;
+
+  const valPM = isInc ? (e.price / usdCnyRate * MARK_PER_USD) : -(e.price / usdCnyRate * MARK_PER_USD);
+
+  const strCNY = `￥ ${valCNY < 0 ? '-' : ''}${formatNum(valCNY)}`;
+
+  const strPM = `ℳ ${valPM < 0 ? '-' : ''}${formatNum(valPM)}`;
+
+  const dataCny = `${valPM < 0 ? -e.price : e.price}`;
+
+  
+
+  const innerHTML = isPapiermarkMode
+
+    ? `<div class="p-pm p-main" style="color:${priceColor};" data-cny="${dataCny}">${renderMoney(strPM)}</div><div class="p-cny p-sub">${renderMoney(strCNY)}</div>`
+
+    : `<div class="p-cny p-main" style="color:${priceColor};">${renderMoney(strCNY)}</div><div class="p-pm p-sub" data-cny="${dataCny}">${renderMoney(strPM)}</div>`;
+
+  return `<div class="entry" data-entry-id="${e.id}">
+
+    <div class="entry-actions">
+
+      <button type="button" class="icon-btn" data-edit="${e.id}" title="Edit">✎</button>
+
+      <button type="button" class="icon-btn del-btn" data-del="${e.id}" title="Delete">🗑</button>
+
+    </div>
+
+    <div class="entry-content">
+
+      <div class="entry-icon" style="color:${iconColor};">${iconChar}</div>
+
+      <div class="entry-main">
+
+        <div class="entry-name-scroll">
+
+          <div class="entry-name">${esc(e.name)}</div>
+
+        </div>
+
+        <div class="entry-price">${innerHTML}</div>
+
+      </div>
+
+    </div>
+
+  </div>`;
+
+}
+
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+
+/* 弹窗与保存 */
+
+function openNew() {
+
+  editingId = null; modalTitle.textContent = t('newTitle'); deleteBtn.style.display = 'none';
+
+  fType.value = 'expense'; fName.value = ''; fPrice.value = '';
+
+  const today = new Date();
+
+  fYear.value = today.getFullYear(); fMonth.value = today.getMonth() + 1; fDay.value = today.getDate();
+
+  validateDateInput();
+
+  modalOverlay.classList.add('show');
+
+  setTimeout(() => fName.focus(), 200);
+
+}
+
+function openEdit(id) {
+
+  const e = entries.find(x => String(x.id) === String(id)); if (!e) return;
+
+  editingId = e.id; modalTitle.textContent = t('editTitle'); deleteBtn.style.display = 'inline-flex';
+
+  fType.value = e.type || 'expense'; fName.value = e.name; fPrice.value = e.price;
+
+  const d = parseDate(e.date);
+
+  if (d) { fYear.value = d.getFullYear(); fMonth.value = d.getMonth() + 1; fDay.value = d.getDate(); }
+
+  else { fYear.value = ''; fMonth.value = ''; fDay.value = ''; }
+
+  validateDateInput();
+
+  modalOverlay.classList.add('show');
+
+}
+
+function closeModal() { modalOverlay.classList.remove('show'); }
+
+function openSyncModal() { dataTextArea.value = ''; syncModalOverlay.classList.add('show'); }
+
+function closeSyncModal() { syncModalOverlay.classList.remove('show'); }
+
+
+function saveEntry() {
+
+  const name = fName.value.trim(), price = parseFloat(fPrice.value), type = fType.value;
+
+  let y = parseInt(fYear.value), m = parseInt(fMonth.value), d = parseInt(fDay.value);
+
+  if (!name) { toastMsg('请输入名称'); return; }
+
+  if (!isFinite(price) || price < 0) { toastMsg('请输入有效金额'); return; }
+
+  if (isNaN(y) || isNaN(m) || isNaN(d)) { toastMsg('请填写完整日期'); return; }
+
+  const maxDays = getDaysInMonth(y, m); if (d > maxDays) d = maxDays;
+
+  const pad = n => n.toString().padStart(2, '0');
+
+  const date = `${y}-${pad(m)}-${pad(d)}`;
+
+  const data = { name, price, date, type };
+
+  if (editingId) {
+
+    const idx = entries.findIndex(e => String(e.id) === String(editingId));
+
+    if (idx >= 0) entries[idx] = { ...entries[idx], ...data };
+
+  } else {
+
+    const newId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random();
+
+    entries.push({ id: newId, ...data });
+
+  }
+
+  saveEntries(); closeModal(); render(); toastMsg(t('toastSaved'));
+
+}
+
+function deleteEntry(id) {
+
+  const idx = entries.findIndex(e => String(e.id) === String(id));
+
+  if (idx > -1) { entries.splice(idx, 1); saveEntries(); closeModal(); render(); toastMsg(t('toastDeleted')); }
+
+}
+
+let toastTimer;
+
+function toastMsg(msg) {
+
+  toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+
+}
+
+
+/* 事件绑定 */
+
+listContainer.addEventListener('click', (ev) => {
+
+  // 刚完成滑动操作，跳过本次点击，防止误收起
+
+  if (justSwiped) return;
+
+  // 点击已展开条目内容区域，收起
+
+  const entry = ev.target.closest('.entry');
+
+  if (entry && entry.classList.contains('open') && !ev.target.closest('.entry-actions')) {
+
+    entry.classList.remove('open');
+
+    const content = entry.querySelector('.entry-content');
+
+    if (content) content.style.transform = '';
+
+    return;
+
+  }
+
+  const editBtn = ev.target.closest('[data-edit]');
+
+  if (editBtn) { ev.preventDefault(); ev.stopPropagation(); openEdit(editBtn.dataset.edit); return; }
+
+  const delBtn = ev.target.closest('[data-del]');
+
+  if (delBtn) { ev.preventDefault(); ev.stopPropagation(); deleteEntry(delBtn.dataset.del); return; }
+
+});
+
+// 绑定左滑事件 - 触摸端
+
+listContainer.addEventListener('touchstart', handleSwipeStart, { passive: true });
+
+listContainer.addEventListener('touchmove', handleSwipeMove, { passive: false });
+
+listContainer.addEventListener('touchend', handleSwipeEnd);
+
+listContainer.addEventListener('touchcancel', handleSwipeEnd);
+
+// 绑定左滑事件 - 电脑端鼠标拖拽
+
+listContainer.addEventListener('mousedown', handleSwipeStart);
+
+document.addEventListener('mousemove', handleSwipeMove);
+
+document.addEventListener('mouseup', handleSwipeEnd);
+
+// 点击空白处收起所有已展开条目
+
+document.addEventListener('click', (e) => {
+
+  if (justSwiped) return;
+
+  if (!e.target.closest('.entry')) {
+
+    closeAllSwipe();
+
+  }
+
+});
+
+$('addBtn').addEventListener('click', openNew);
+
+$('modalClose').addEventListener('click', closeModal);
+
+$('modalCancel').addEventListener('click', closeModal);
+
+$('saveBtn').addEventListener('click', saveEntry);
+
+deleteBtn.addEventListener('click', () => { if (editingId) deleteEntry(editingId); });
+
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+$('refreshRate').addEventListener('click', () => fetchRealRate(true));
+
+$('historyBtn').addEventListener('click', openHistoryPage);
+
+$('historyClose').addEventListener('click', hideHistoryOverlay);
+
+historyOverlay.addEventListener('click', (e) => { if (e.target === historyOverlay) hideHistoryOverlay(); });
+
+$('syncBtn').addEventListener('click', openSyncModal);
+
+$('syncModalClose').addEventListener('click', closeSyncModal);
+
+syncModalOverlay.addEventListener('click', (e) => { if (e.target === syncModalOverlay) closeSyncModal(); });
+
+$('exportFileBtn').addEventListener('click', exportData);
+
+$('importFileBtn').addEventListener('click', () => $('importFileInput').click());
+
+$('importFileInput').addEventListener('change', handleImportFile);
+
+$('copyDataBtn').addEventListener('click', copyText);
+
+$('pasteDataBtn').addEventListener('click', loadFromText);
+
+$('toggleModeBtn').addEventListener('click', () => { isPapiermarkMode = !isPapiermarkMode; render(); });
+
+$('langSelect').addEventListener('change', (e) => {
+
+  currentLang = e.target.value;
+
+  try { localStorage.setItem(LANG_KEY, currentLang); } catch (err) {}
+
+  render();
+
+});
+
+[fName, fPrice].forEach(el => { el.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveEntry(); }); });
+
+window.addEventListener('resize', () => { fitSummaryCards(); fitEntryPrices(); });
+
+window.addEventListener('orientationchange', () => { setTimeout(() => { fitSummaryCards(); fitEntryPrices(); }, 200); });
+
+
+/* 初始化 */
+
+async function init() {
+
+  initTheme();
+
+  try {
+
+    const saved = localStorage.getItem(LANG_KEY);
+
+    if (saved && I18N[saved]) currentLang = saved;
+
+  } catch (e) {}
+
+  $('langSelect').value = currentLang;
+
+  loadEntries();
+
+  const cached = loadRateCache();
+
+  if (cached) {
+
+    realRate = cached.rate;
+
+    usdCnyRate = realRate;
+
+    usdRateDisplay.textContent = usdCnyRate.toFixed(4);
+
+  }
+
+  applyI18n();
+
+  render();
+
+  await fetchRealRate(false);
+
+  startRateTicker();
+
+  setInterval(() => fetchRealRate(false), 5 * 60 * 1000);
+
+  if (document.fonts && document.fonts.ready) {
+
+    document.fonts.ready.then(() => { fitSummaryCards(); fitEntryPrices(); });
+
+  }
+
+}
+
+init();
+
+</script>
+
+</body>
+
+</html>
+<!-- （注：内容由AI生成） -->
